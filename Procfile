@@ -1,1 +1,1 @@
-worker: python parser.py
+One-off: python parser.py

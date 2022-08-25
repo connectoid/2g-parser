@@ -12,7 +12,7 @@ base_url = 'https://2gis.ru/search/'
 search_url = 'Тульская область автозапчасти'
 OUTPUT_FILE = 'out.csv'
 filename = 'out.csv'
-delay_in_seconds = 5
+delay_in_seconds = 1
 
 main_url = base_url + search_url
 UA = 'Out: ''Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.37 (KHTML, like Gecko) Chrome/41.0.2224.5 Safari/537.39'
