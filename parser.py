@@ -13,24 +13,14 @@ base_url = 'https://2gis.ru/search/'
 search_url = 'Тульская область автозапчасти'
 OUTPUT_FILE = 'out.csv'
 filename = 'out.csv'
-start_delay_urls = 10
-delay_range_urls = 20
+start_delay_urls = 30
+delay_range_urls = 60
 start_delay_firms = 10
 delay_range_firms = 25
+delay_every_5 = 90
 
 main_url = base_url + search_url
-UA = 'Out: ''Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.37 (KHTML, like Gecko) Chrome/41.0.2224.5 Safari/537.39'
-header = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36" ,
-        'referer':'https://www.google.com/'
-    }
-test_urls = [
-    'https://2gis.ru/p_kamchatskiy/firm/5067078862413191',
-    'https://2gis.ru/p_kamchatskiy/firm/5067078862103744',
-    'https://2gis.ru/p_kamchatskiy/firm/70000001059933705',
-    'https://2gis.ru/p_kamchatskiy/firm/5067078862343918']
 
-test_url = 'https://2gis.ru/tula/firm/5067078862413191'
 socials = ['WhatsApp', 'Telegram', 'ВКонтакте', 'Viber', 'Одноклассники']
 
 proxy_list = [
@@ -46,12 +36,21 @@ proxy_list = [
     "http://K7MosZXq5W:LPnOUQ2s3J@194.48.155.27:25323",
 ]
 
+user_agent_list = [
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
+]
 
 def get_company_data(url):
     proxy_value = random.choice(proxy_list)
     proxies = {'http': proxy_value}
+    user_agent = random.choice(user_agent_list)
+    headers = {'User-Agent': user_agent, 'referer':'https://www.google.com/'}
     try:
-        response = requests.get(url, headers=header, proxies=proxies)
+        response = requests.get(url, headers=headers, proxies=proxies)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -141,9 +140,11 @@ def get_urls_data(url, page):
     delay = random.randint(start_delay_urls, delay_range_urls)
     proxy_value = random.choice(proxy_list)
     proxies = {'http': proxy_value}
+    user_agent = random.choice(user_agent_list)
+    headers = {'User-Agent': user_agent, 'referer':'https://www.google.com/'}
     time.sleep(delay)
     try:
-        response = requests.get(url, headers=header, proxies=proxies)
+        response = requests.get(url, headers=headers, proxies=proxies)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -164,14 +165,20 @@ def get_companies_list(soup):
         return None
 
 def get_all_urls(count):
+    delay = 1
     main_list = []
     for page in range(1, count + 1):
+        if page % 5 == 0:
+            delay = delay_every_5
+            print(f'делаем задержку {delay_every_5} сек')
+        time.sleep(delay)
         data = get_urls_data(main_url, page)
         companies_list = get_companies_list(data)
         if companies_list:
             for company_url in companies_list:
                 main_list.append(company_url)
         else:
+            print(companies_list)
             print(f'Страница номер {page} пустая')
     return main_list
 
