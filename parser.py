@@ -12,6 +12,7 @@ base_url = 'https://2gis.ru/search/'
 search_url = 'Тульская область автозапчасти'
 OUTPUT_FILE = 'out.csv'
 filename = 'out.csv'
+delay_in_seconds = 3
 
 main_url = base_url + search_url
 UA = 'Out: ''Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.37 (KHTML, like Gecko) Chrome/41.0.2224.5 Safari/537.39'
@@ -38,7 +39,7 @@ def save_data(data):
 def get_company_data(url):
     try:
         response = requests.get(url, headers=header)
-        time.sleep(1)
+        time.sleep(delay_in_seconds)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -125,7 +126,7 @@ def parse_company_data(soup):
 def get_urls_data(url, page):
     url = url + '/page/' + str(page)
     print('Обрабатываем страницу ', url)
-    time.sleep(1)
+    time.sleep(delay_in_seconds)
     try:
         response = requests.get(url, headers=header)
         soup = BeautifulSoup(response.text, 'lxml')
