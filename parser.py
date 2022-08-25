@@ -180,10 +180,10 @@ def main():
     main_list = get_all_urls(2)
     companies_data = []
     for url in main_list:
-        delay = random.randint(1, delay_range)
+        delay = random.randint(1, delay_range_firms)
         soup = get_company_data(url)
         print(f'Делаем задержку {delay} сек')
-        time.sleep(delay))
+        time.sleep(delay)
         if soup:
             data = parse_company_data(soup)
             companies_data.append(data)
