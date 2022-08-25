@@ -31,16 +31,26 @@ test_urls = [
 test_url = 'https://2gis.ru/tula/firm/5067078862413191'
 socials = ['WhatsApp', 'Telegram', 'ВКонтакте', 'Viber', 'Одноклассники']
 
-def save_data(data):
-    with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
-        writer = csv.writer(f, dialect='excel', delimiter = ",")
-        writer.writerow(['Наименование', 'Адрес','Координаты','Телефоны','Адрес сайта'])
-        for item in data:
-            writer.writerow(item)
+proxy_list = [
+    "http://1WQRNoXjZ0:Hm58u4LKq1@194.48.154.228:19552",
+    "http://uPF4pjHnv2:HrDBi1wyF7@185.156.75.58:24992",
+    "http://8K5niNeyDg:c8U2KxbvTJ@185.5.250.192:20974",
+    "http://Tdwrh5iDuE:IYUo023yjl@185.5.250.240:12417",
+    "http://YAGrkhisbt:TOF3LXDdnV@185.156.75.144:12091",
+    "http://hbRTeEZcOM:Epo1uKUjaX@185.5.251.31:14029",
+    "http://YfxCLlkOzi:MVjEAl0xTJ@185.5.250.29:21348",
+    "http://1b3N7aCus9:19t6BsPm38@185.58.205.216:13482",
+    "http://XnO1Q5KIVv:EjH5VbrnsK@185.58.207.222:24372",
+    "http://K7MosZXq5W:LPnOUQ2s3J@194.48.155.27:25323",
+]
+
 
 def get_company_data(url):
+    proxy_value = random.choice(proxy_list)
+    proxies = {'http': proxy_value}
+    print(proxies)
     try:
-        response = requests.get(url, headers=header)
+        response = requests.get(url, headers=header, proxies=proxies)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -127,11 +137,13 @@ def parse_company_data(soup):
 def get_urls_data(url, page):
     url = url + '/page/' + str(page)
     print('Обрабатываем страницу ', url)
-    delay = random.randint(1, delay_range_urls)
-    #print(f'Делаем задержку {delay} сек')
+    delay = random.randint(2, delay_range_urls)
+    proxy_value = random.choice(proxy_list)
+    proxies = {'http': proxy_value}
+    print(proxies)
     time.sleep(delay)
     try:
-        response = requests.get(url, headers=header)
+        response = requests.get(url, headers=header, proxies=proxies)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -163,6 +175,13 @@ def get_all_urls(count):
             print(f'Страница номер {page} пустая')
     return main_list
 
+def save_data(data):
+    with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
+        writer = csv.writer(f, dialect='excel', delimiter = ",")
+        writer.writerow(['Наименование', 'Адрес','Широта','Долгота','Телефоны','Адрес сайта'])
+        for item in data:
+            writer.writerow(item)
+
 def save_in_xlsx(csvfile):
     for csvfile in glob.glob(os.path.join('.', '*.csv')):
         workbook = Workbook(csvfile[:-4] + '.xlsx')
@@ -174,10 +193,11 @@ def save_in_xlsx(csvfile):
                     worksheet.write(r, c, col)
         workbook.close()
 
+
 def main():
     f = open(filename, 'w')
     f.close()
-    main_list = get_all_urls(10)
+    main_list = get_all_urls(2)
     companies_data = []
     for url in main_list:
         delay = random.randint(2, delay_range_firms)
