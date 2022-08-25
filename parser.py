@@ -13,8 +13,8 @@ base_url = 'https://2gis.ru/search/'
 search_url = 'Тульская область автозапчасти'
 OUTPUT_FILE = 'out.csv'
 filename = 'out.csv'
-delay_range_urls = 5
-delay_range_firms = 10
+delay_range_urls = 4
+delay_range_firms = 6
 
 main_url = base_url + search_url
 UA = 'Out: ''Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.37 (KHTML, like Gecko) Chrome/41.0.2224.5 Safari/537.39'
@@ -48,7 +48,6 @@ proxy_list = [
 def get_company_data(url):
     proxy_value = random.choice(proxy_list)
     proxies = {'http': proxy_value}
-    print(proxies)
     try:
         response = requests.get(url, headers=header, proxies=proxies)
         soup = BeautifulSoup(response.text, 'lxml')
@@ -140,7 +139,6 @@ def get_urls_data(url, page):
     delay = random.randint(2, delay_range_urls)
     proxy_value = random.choice(proxy_list)
     proxies = {'http': proxy_value}
-    print(proxies)
     time.sleep(delay)
     try:
         response = requests.get(url, headers=header, proxies=proxies)
