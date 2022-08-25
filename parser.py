@@ -13,11 +13,11 @@ base_url = 'https://2gis.ru/search/'
 search_url = 'Тульская область автозапчасти'
 OUTPUT_FILE = 'out.csv'
 filename = 'out.csv'
-start_delay_urls = 30
-delay_range_urls = 60
-start_delay_firms = 10
-delay_range_firms = 25
-delay_every_5 = 90
+start_delay_urls = 1
+delay_range_urls = 1
+start_delay_firms = 1
+delay_range_firms = 1
+delay_every_5 = 1
 
 main_url = base_url + search_url
 
@@ -170,7 +170,7 @@ def get_all_urls(count):
     for page in range(1, count + 1):
         if page % 5 == 0:
             delay = delay_every_5
-            print(f'делаем задержку {delay_every_5} сек')
+            print(f'Делаем задержку {delay_every_5} сек')
         time.sleep(delay)
         data = get_urls_data(main_url, page)
         companies_list = get_companies_list(data)
@@ -178,7 +178,6 @@ def get_all_urls(count):
             for company_url in companies_list:
                 main_list.append(company_url)
         else:
-            print(companies_list)
             print(f'Страница номер {page} пустая')
     return main_list
 
