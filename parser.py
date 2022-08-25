@@ -2,6 +2,9 @@ import csv
 from urllib import response
 import requests
 from bs4 import BeautifulSoup
+from xlsxwriter.workbook import Workbook
+import glob
+import os
 import time
 
 min_url = 'https://2gis.ru'
@@ -23,33 +26,29 @@ test_urls = [
     'https://2gis.ru/p_kamchatskiy/firm/5067078862343918']
 
 test_url = 'https://2gis.ru/tula/firm/5067078862413191'
+socials = ['WhatsApp', 'Telegram', 'ВКонтакте', 'Viber', 'Одноклассники']
 
 def save_data(data):
     with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
-        writer = csv.writer(f, dialect='excel', delimiter = ";")
-        writer.writerow(['Наименование', 'Описание','Адрес'])
+        writer = csv.writer(f, dialect='excel', delimiter = ",")
+        writer.writerow(['Наименование', 'Адрес','Координаты','Телефоны','Адрес сайта'])
         for item in data:
             writer.writerow(item)
 
 def get_company_data(url):
     try:
         response = requests.get(url, headers=header)
-        #time.sleep(3)
+        time.sleep(1)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
         soup = None
     return soup
 
+
 def get_phone(phone_string):
     if phone_string:
         return phone_string.find('a')
-    else:
-        return ''
-
-def get_coords(geo):
-    if geo:
-        return geo.find('a')
     else:
         return ''
 
@@ -66,53 +65,69 @@ def get_site(site_string):
     else:
         return ''
 
+def get_address(region, street):
+    address = ''
+    if region:
+        region = region.text.strip() + ', '
+    else:
+        region = ''
+    if street:
+        street = street.text.strip().replace(u'\xa0', u' ').replace(u'\u200b', u'')
+    else:
+        street = ''
+    address = region + street
+    return address
+    
+    region.text.strip() + ', ' + street.text.strip().replace(u'\xa0', u' ').replace(u'\u200b', u'')
+
 def parse_company_data(soup):
     data = []
     if soup:
         name, description, region = '', '', ''
         name = soup.find('span', class_='_oqoid')
-        print('### name: ', name)
         description = soup.find('article', class_='_xhakwn')
-        print('### description: ', description)
         region = soup.find('div', class_='_1p8iqzw')
         street = soup.find('span', class_='_er2xx9')
         phone = soup.find('div', class_='_b0ke8')
-        print(phone)
         site = soup.find('div', class_='_t0tx82')
         geo = soup.find('span', class_='_er2xx9')
+        
         if name:
-            data.append(name.text.strip())
-        if description:
-            data.append(description.text.strip())
+            name = name.text.strip()
+            print(f'Добавлена фирма {name}')
+            data.append(name)
         else:
-            data.append('')
-        if region:
-            data.append(region.text.strip())
-        if street:
-            data.append(street.text.strip().replace(u'\xa0', u' ').replace(u'\u200b', u''))
+            print('Фирма пропущена')
+        data.append(get_address(region, street))
+        if geo:
+            data.append(min_url + geo.find('a')['href'])
         if phone:
             try:
                 data.append(get_phone(phone)['href'])
             except KeyError as error:
                 print('### error: ', error)
         if site:
-            try: 
+            try:
                 site = get_site(site)
             except KeyError as error:
                 print('### error: ', error)
             finally:
-                data.append(site)
-        if geo:
-            data.append(geo.find('a')['href'])
-
+                if site and site not in socials:
+                    data.append('http://' + site)
+                else:
+                    data.append('')
+        if description:
+            data.append(description.text.strip())
+        else:
+            data.append('')
     return data
 
 def get_urls_data(url, page):
     url = url + '/page/' + str(page)
     print('Обрабатываем страницу ', url)
+    time.sleep(1)
     try:
         response = requests.get(url, headers=header)
-        #time.sleep(3)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -144,19 +159,28 @@ def get_all_urls(count):
             print(f'Страница номер {page} пустая')
     return main_list
 
-def main():
-    #f = open(filename, 'w')
-    #f.close()
+def save_in_xlsx(csvfile):
+    for csvfile in glob.glob(os.path.join('.', '*.csv')):
+        workbook = Workbook(csvfile[:-4] + '.xlsx')
+        worksheet = workbook.add_worksheet()
+        with open(csvfile, 'rt', encoding='utf8') as f:
+            reader = csv.reader(f)
+            for r, row in enumerate(reader):
+                for c, col in enumerate(row):
+                    worksheet.write(r, c, col)
+        workbook.close()
 
-    #main_list = get_all_urls(100)
-    #print(main_list)
+def main():
+    f = open(filename, 'w')
+    f.close()
+    main_list = get_all_urls(2)
     companies_data = []
-    #for url in main_list:
-    soup = get_company_data(test_url)
-    data = parse_company_data(soup)
-    companies_data.append(data)
-    print(companies_data)
-    #save_data(companies_data)
+    for url in main_list:
+        soup = get_company_data(url)
+        data = parse_company_data(soup)
+        companies_data.append(data)
+    save_data(companies_data)
+    save_in_xlsx(filename)
 
 if __name__ == '__main__':
     main()
