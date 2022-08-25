@@ -128,7 +128,7 @@ def get_urls_data(url, page):
     url = url + '/page/' + str(page)
     print('Обрабатываем страницу ', url)
     delay = random.randint(1, delay_range_urls)
-    print(f'Делаем задержку {delay} сек')
+    #print(f'Делаем задержку {delay} сек')
     time.sleep(delay)
     try:
         response = requests.get(url, headers=header)
@@ -177,12 +177,12 @@ def save_in_xlsx(csvfile):
 def main():
     f = open(filename, 'w')
     f.close()
-    main_list = get_all_urls(2)
+    main_list = get_all_urls(10)
     companies_data = []
     for url in main_list:
-        delay = random.randint(1, delay_range_firms)
+        delay = random.randint(2, delay_range_firms)
         soup = get_company_data(url)
-        print(f'Делаем задержку {delay} сек')
+        #print(f'Делаем задержку {delay} сек')
         time.sleep(delay)
         if soup:
             data = parse_company_data(soup)
