@@ -1,1 +1,1 @@
-worker: python chbot.py
+worker: python parser.py
