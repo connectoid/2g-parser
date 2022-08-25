@@ -13,8 +13,8 @@ base_url = 'https://2gis.ru/search/'
 search_url = 'Тульская область автозапчасти'
 OUTPUT_FILE = 'out.csv'
 filename = 'out.csv'
-delay_range_urls = 4
-delay_range_firms = 6
+delay_range_urls = 6
+delay_range_firms = 8
 
 main_url = base_url + search_url
 UA = 'Out: ''Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.37 (KHTML, like Gecko) Chrome/41.0.2224.5 Safari/537.39'
@@ -195,7 +195,7 @@ def save_in_xlsx(csvfile):
 def main():
     f = open(filename, 'w')
     f.close()
-    main_list = get_all_urls(2)
+    main_list = get_all_urls(10)
     companies_data = []
     for url in main_list:
         delay = random.randint(2, delay_range_firms)
