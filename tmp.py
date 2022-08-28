@@ -1,4 +1,5 @@
 import random
+import requests
 
 proxy_dict = {
     "1":"http://1WQRNoXjZ0:Hm58u4LKq1@194.48.154.228:19552",
@@ -13,13 +14,10 @@ proxy_dict = {
     "0":"http://K7MosZXq5W:LPnOUQ2s3J@194.48.155.27:25323",
 }
 
-d = {'VENEZUELA':'CARACAS', 'CANADA':'OTTAWA'}
+proxy_value = random.choice(list(proxy_dict.values()))
+proxy = {'http': proxy_value}
 
-
-for _ in range(10):
-    proxy_value = random.choice(list(proxy_dict.values()))
-    print(proxy_value)
-
-for _ in range(10):
-    proxy_value = random.choice(list(d.values()))
-    print(proxy_value)
+print(proxy)
+url = 'http://icanhazip.com'
+response = requests.get(url, proxies=proxy).text
+print(response)

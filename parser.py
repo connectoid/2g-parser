@@ -45,12 +45,13 @@ user_agent_list = [
 ]
 
 def get_company_data(url):
+    session = requests.Session()
     proxy_value = random.choice(proxy_list)
     proxies = {'http': proxy_value}
     user_agent = random.choice(user_agent_list)
     headers = {'User-Agent': user_agent, 'referer':'https://www.google.com/'}
     try:
-        response = requests.get(url, headers=headers, proxies=proxies)
+        response = session.get(url, headers=headers, proxies=proxies)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -135,6 +136,7 @@ def parse_company_data(soup):
     return data
 
 def get_urls_data(url, page):
+    session = requests.Session()
     url = url + '/page/' + str(page)
     print('Обрабатываем страницу ', url)
     delay = random.randint(start_delay_urls, delay_range_urls)
@@ -144,7 +146,9 @@ def get_urls_data(url, page):
     headers = {'User-Agent': user_agent, 'referer':'https://www.google.com/'}
     time.sleep(delay)
     try:
-        response = requests.get(url, headers=headers, proxies=proxies)
+        response = session.get(url, headers=headers, proxies=proxies)
+        ip_response = session.get('http://icanhazip.com', proxies=proxies).text
+        print('### ip: ', ip_response)
         soup = BeautifulSoup(response.text, 'lxml')
     except Exception as error:
         print('Возникла ошибка: ', error)
@@ -165,13 +169,8 @@ def get_companies_list(soup):
         return None
 
 def get_all_urls(count):
-    delay = 1
     main_list = []
     for page in range(1, count + 1):
-        if page % 5 == 0:
-            delay = delay_every_5
-            print(f'Делаем задержку {delay_every_5} сек')
-        time.sleep(delay)
         data = get_urls_data(main_url, page)
         companies_list = get_companies_list(data)
         if companies_list:
@@ -179,6 +178,7 @@ def get_all_urls(count):
                 main_list.append(company_url)
         else:
             print(f'Страница номер {page} пустая')
+            print(data)
     return main_list
 
 def save_data(data):
